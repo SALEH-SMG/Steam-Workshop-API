@@ -28,16 +28,11 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
             this.button1 = new System.Windows.Forms.Button();
             this.textBox2 = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
-            this.workshopBindingSource1 = new System.Windows.Forms.BindingSource(this.components);
-            this.workshopBindingSource = new System.Windows.Forms.BindingSource(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.workshopBindingSource1)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.workshopBindingSource)).BeginInit();
             this.SuspendLayout();
             // 
             // button1
@@ -82,14 +77,6 @@
             this.dataGridView1.Size = new System.Drawing.Size(800, 276);
             this.dataGridView1.TabIndex = 5;
             // 
-            // workshopBindingSource1
-            // 
-            this.workshopBindingSource1.DataSource = typeof(Steam_Workshop_API.Workshop);
-            // 
-            // workshopBindingSource
-            // 
-            this.workshopBindingSource.DataSource = typeof(Steam_Workshop_API.Workshop);
-            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -102,8 +89,6 @@
             this.Name = "Form1";
             this.Text = "Form1";
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.workshopBindingSource1)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.workshopBindingSource)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -115,8 +100,6 @@
         private System.Windows.Forms.TextBox textBox2;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.DataGridView dataGridView1;
-        private System.Windows.Forms.BindingSource workshopBindingSource;
-        private System.Windows.Forms.BindingSource workshopBindingSource1;
     }
 }
 

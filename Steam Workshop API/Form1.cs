@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Drawing;
 
 namespace Steam_Workshop_API
 {
@@ -46,17 +49,32 @@ namespace Steam_Workshop_API
                 {
                     string responseString = await response.Content.ReadAsStringAsync();
                     List<Workshop> workshops = ParseWorkshopsFromJson(responseString);
+
+                    // Create a new DataGridViewImageColumn for the "Preview URL" column
+                    //DataGridViewImageColumn imageColumn = new DataGridViewImageColumn();
+                    //imageColumn.HeaderText = "Preview";
+                    //imageColumn.Name = "Preview";
+                    //dataGridView1.Columns.Add(imageColumn);
+
+
+                    // Define maximum width and height for the resized images
+                    int maxWidth = 100; // Adjust to your desired width
+                    int maxHeight = 100; // Adjust to your desired height
+
                     //dataGridView1.DataSource = workshops;
+                    // Populate the DataGridView
                     dataGridView1.DataSource = workshops.Select(w => new
                     {
                         // Select the properties you want to display in the DataGridView
+                        // Set the "Preview URL" as the value of the DataGridViewImageColumn
+                        Preview = ResizeImage(GetImageFromUrl(w.Preview_url), maxWidth, maxHeight),
                         w.Title,
                         w.FileSize,
                         w.TimeCreated,
-                        w.TimeUpdated,
-                        w.Preview_url// Use the formatted date property
+                        w.TimeUpdated
                     }).ToList();
-                SetDataGridViewHeaders();
+
+                    SetDataGridViewHeaders();
                 }
                 else
                 {
@@ -67,6 +85,60 @@ namespace Steam_Workshop_API
             {
                 MessageBox.Show($"An error occurred: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+
+        private Image GetImageFromUrl(string imageUrl)
+        {
+            try
+            {
+                using (WebClient webClient = new WebClient())
+                {
+                    byte[] data = webClient.DownloadData(imageUrl);
+                    using (MemoryStream memoryStream = new MemoryStream(data))
+                    {
+                        return Image.FromStream(memoryStream);
+                    }
+                }
+            }
+            catch
+            {
+                // Return a placeholder image or handle the error as needed
+                return null;
+            }
+        }
+
+        private Image ResizeImage(Image image, int maxWidth, int maxHeight)
+        {
+            if (image == null)
+            {
+                // Handle the case where the image is null (e.g., error loading the image)
+                return null;
+            }
+
+            int newWidth, newHeight;
+            if (image.Width > image.Height)
+            {
+                newWidth = maxWidth;
+                newHeight = (int)((float)image.Height / image.Width * maxWidth);
+            }
+            else
+            {
+                newHeight = maxHeight;
+                newWidth = (int)((float)image.Width / image.Height * maxHeight);
+            }
+
+            Image resizedImage = new Bitmap(newWidth, newHeight);
+
+            using (Graphics graphics = Graphics.FromImage(resizedImage))
+            {
+                graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+                graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+                graphics.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
+                graphics.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
+                graphics.DrawImage(image, 0, 0, newWidth, newHeight);
+            }
+
+            return resizedImage;
         }
 
         private List<Workshop> ParseWorkshopsFromJson(string json)
@@ -83,7 +155,7 @@ namespace Steam_Workshop_API
             dataGridView1.Columns["FileSize"].HeaderText = "File Size (Bytes)";
             dataGridView1.Columns["TimeCreated"].HeaderText = "Time Created";
             dataGridView1.Columns["TimeUpdated"].HeaderText = "Time Updated";
-            dataGridView1.Columns["Preview_url"].HeaderText = "Preview URL";
+            //dataGridView1.Columns["Preview_url"].HeaderText = "Preview URL";
         }
     }
 }
