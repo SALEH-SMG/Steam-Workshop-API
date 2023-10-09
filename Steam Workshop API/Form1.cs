@@ -4,9 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Drawing;
 
@@ -50,13 +48,6 @@ namespace Steam_Workshop_API
                     string responseString = await response.Content.ReadAsStringAsync();
                     List<Workshop> workshops = ParseWorkshopsFromJson(responseString);
 
-                    // Create a new DataGridViewImageColumn for the "Preview URL" column
-                    //DataGridViewImageColumn imageColumn = new DataGridViewImageColumn();
-                    //imageColumn.HeaderText = "Preview";
-                    //imageColumn.Name = "Preview";
-                    //dataGridView1.Columns.Add(imageColumn);
-
-
                     // Define maximum width and height for the resized images
                     int maxWidth = 100; // Adjust to your desired width
                     int maxHeight = 100; // Adjust to your desired height
@@ -71,8 +62,21 @@ namespace Steam_Workshop_API
                         w.Title,
                         w.FileSize,
                         w.TimeCreated,
-                        w.TimeUpdated
+                        w.TimeUpdated,
+                        ModURL = "https://steamcommunity.com/sharedfiles/filedetails/?id=" + w.Publishedfileid
                     }).ToList();
+
+                    //Handle click on link
+                    dataGridView1.CellContentClick += (obj, args) =>
+                    {
+                        if (args.RowIndex < 0 || args.ColumnIndex < 0)
+                            return;
+                        if (dataGridView1.Columns[args.ColumnIndex].Name != "ModURL")
+                            return;
+                        var value = $"{dataGridView1[args.ColumnIndex, args.RowIndex].Value}";
+                        if (Uri.TryCreate(value, UriKind.Absolute, out Uri uri))
+                            System.Diagnostics.Process.Start(value);
+                    };
 
                     SetDataGridViewHeaders();
                 }
@@ -86,6 +90,7 @@ namespace Steam_Workshop_API
                 MessageBox.Show($"An error occurred: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
 
         private Image GetImageFromUrl(string imageUrl)
         {
@@ -155,7 +160,6 @@ namespace Steam_Workshop_API
             dataGridView1.Columns["FileSize"].HeaderText = "File Size (Bytes)";
             dataGridView1.Columns["TimeCreated"].HeaderText = "Time Created";
             dataGridView1.Columns["TimeUpdated"].HeaderText = "Time Updated";
-            //dataGridView1.Columns["Preview_url"].HeaderText = "Preview URL";
         }
     }
 }
